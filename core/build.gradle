@@ -1,0 +1,29 @@
+apply plugin: 'java'
+apply plugin: 'checkstyle'
+apply plugin: 'pmd'
+apply plugin: 'findbugs'
+
+checkstyle {
+    configFile file("../codequality/checkstyle-rules/checkstyle.xml")
+    toolVersion = "6.7"
+}
+
+pmd {
+    ruleSetFiles = files("$project.rootDir/codequality/pmd-rules/ruleset.xml")
+}
+
+findbugs {
+    toolVersion = "3.0.0"
+}
+
+tasks.withType(FindBugs) {
+    reports {
+        def htmlOn = project.hasProperty('htmlFindbugs')
+        html.enabled = htmlOn
+        xml.enabled = !htmlOn
+    }
+}
+
+dependencies {
+    testCompile 'junit:junit:4.12'
+}

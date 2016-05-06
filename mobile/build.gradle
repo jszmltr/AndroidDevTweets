@@ -1,0 +1,32 @@
+apply plugin: 'com.android.application'
+
+android {
+    compileSdkVersion 23
+    buildToolsVersion "23.0.3"
+
+    defaultConfig {
+        applicationId "net.jackszm.twittertagscanner"
+        minSdkVersion 16
+        targetSdkVersion 23
+        versionCode 1
+        versionName "1.0"
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFile '../codequality/proguard-rules.pro'
+        }
+    }
+
+    lintOptions {
+        lintConfig file('../codequality/lint-rules/config.xml')
+    }
+}
+
+dependencies {
+    compile project(':core')
+
+    compile 'com.android.support:appcompat-v7:23.3.0'
+
+    testCompile 'junit:junit:4.12'
+}

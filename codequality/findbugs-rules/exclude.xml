@@ -1,0 +1,13 @@
+<FindBugsFilter>
+
+  <Match>
+    <Or>
+      <Class name="~.*\.R\$.*" />
+      <Class name="~.*Test" />
+      <Class name="~.*\.Manifest\$.*" />
+      <Class name="~android.support.test.espresso.contrib.*" />
+    </Or>
+    <Bug category="PERFORMANCE,MALICIOUS_CODE,STYLE,SECURITY,CORRECTNESS,MT_CORRECTNESS,BAD_PRACTICE,I18N" />
+  </Match>
+
+</FindBugsFilter>

@@ -1,0 +1,114 @@
+configurations {
+    findbugs
+    findbugsPlugins
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    findbugs "com.google.code.findbugs:findbugs-ant:3.0.0"
+}
+
+task findbugs(type: AndroidFindBugsTask) {
+    ignoreFailures true
+}
+
+tasks.withType(FindBugs) {
+    reports {
+        def htmlOn = project.hasProperty('htmlFindbugs')
+        html.enabled = htmlOn
+        xml.enabled = !htmlOn
+    }
+}
+
+check.dependsOn(findbugs)
+
+///////////////////////////////////////////////
+////////////// Groovy Task Class //////////////
+///////////////////////////////////////////////
+import org.gradle.api.internal.project.IsolatedAntBuilder
+
+/**
+ * See parameters at http://findbugs.sourceforge.net/manual/anttask.html
+ */
+class AndroidFindBugsTask extends DefaultTask {
+    @InputFile
+    @Optional
+    File excludeFile = new File("$project.rootDir/codequality/findbugs-rules/exclude.xml")
+    @InputFile
+    @Optional
+    File xslFile = new File("$project.rootDir/codequality/findbugs-rules/default.xsl")
+
+    @OutputFile
+    File outputFile = new File("$project.buildDir/reports/findbugs/findbugs-results.xml")
+
+    FileCollection findbugsClasspath = project.configurations.findbugs
+    FileCollection pluginClasspath = project.configurations.findbugsPlugins
+    Boolean ignoreFailures = false
+    Project gradleProject = project
+    String errorProp = 'findbugsError'
+    String warningsProp = 'findbugsWarnings'
+
+    def AndroidFindBugsTask() {
+        description = 'Runs FindBugs against Android sourcesets.'
+        group = 'Code Quality'
+        dependsOn 'assemble'
+    }
+
+    @TaskAction
+    def findBugs() {
+        def antBuilder = services.get(IsolatedAntBuilder)
+        antBuilder.withClasspath(findbugsClasspath).execute {
+            ant.taskdef(name: 'findbugs', classname: 'edu.umd.cs.findbugs.anttask.FindBugsTask')
+
+            def ignoredModules = [""]
+
+            gradleProject.subprojects.each { submodule ->
+                if (!submodule.plugins.hasPlugin("com.android.application") && !submodule.plugins.hasPlugin("com.android.library")) {
+                    return;
+                }
+                if (ignoredModules.contains(submodule.name)) {
+                    return
+                }
+
+                File outputFile = new File("${gradleProject.buildDir}/reports/findbugs/findbugs-${gradleProject.name}-${submodule.name}.xml")
+                outputFile.parentFile.mkdirs()
+                ant.findbugs(debug: 'true', errorProperty: errorProp, warningsProperty: warningsProp, output: 'xml:withMessages', outputFile: outputFile, excludeFilter: excludeFile, jvmargs: '-Xmx2048M') {
+                    findbugsClasspath.addToAntBuilder(ant, 'classpath')
+                    pluginClasspath.addToAntBuilder(ant, 'pluginList')
+                    auxclassPath(path: submodule.configurations.compile.asPath)
+                    submodule.android.sourceSets*.java.srcDirs.each { srcDir ->
+                        sourcePath(path: srcDir)
+                    }
+                    "class"(location: "${submodule.buildDir}/intermediates/classes")
+                }
+
+                if (ant.project.properties[errorProp]) {
+                    throw new GradleException("FindBugs encountered an error. Run with --debug to get more information.")
+                }
+
+                if (ant.project.properties[warningsProp] && !ignoreFailures) {
+                    if (outputFile) {
+                        throw new GradleException("FindBugs rule violations were found. See the report at ${outputFile}.")
+                    } else {
+                        throw new GradleException("FindBugs rule violations were found.")
+                    }
+                }
+
+
+            }
+
+            ant.taskdef(name: 'findbugsMerge', classname: 'edu.umd.cs.findbugs.anttask.UnionBugs')
+            ant.findbugsMerge(to: outputFile) {
+                fileset(dir: "${gradleProject.buildDir}/reports/findbugs") {
+                    include(name: '*.xml')
+                }
+            }
+            if (outputFile.exists()) {
+                ant.xslt(in: outputFile, style: xslFile, out: outputFile.absolutePath.replaceFirst(~/\.[^\.]+$/, ".html"))
+            }
+        }
+    }
+}

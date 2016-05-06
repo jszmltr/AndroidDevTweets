@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<lint>
+
+  <issue id="GradleDependency" severity="informational" />
+  <issue id="OldTargetApi" severity="informational" />
+
+  <issue id="GoogleAppIndexingWarning" severity="ignore" /><!-- we're not doing app indexing -->
+  <issue id="MissingTranslation" severity="ignore" />
+  <issue id="IconMissingDensityFolder" severity="ignore" />
+  <issue id="IconDuplicates" severity="ignore" />
+  <issue id="RtlSymmetry" severity="ignore" />
+  <issue id="RtlHardcoded" severity="ignore" />
+  <!--Disables warnings about possible overlapping views (e.g. when using `rightOf` instead of `endOf`)-->
+  <issue id="RelativeOverlap" severity="ignore" />
+  <issue id="OldTargetApi" severity="ignore" />
+  <issue id="TypographyDashes" severity="ignore" />
+  <issue id="InvalidPackage">
+    <!--Invalid package reference in library; not included in Android: java.nio.file. Referenced from okio.Okio.-->
+    <ignore regexp="okio" />
+  </issue>
+
+  <issue id="UnusedAttribute">
+    <!-- Ignore the supportsRtl attribute which is not valid before API level 17. -->
+    <ignore regexp="supportsRtl" />
+  </issue>
+
+  <!-- Ignore the UnusedResources issue for the icons that are used in code (the icon names are set in the json) -->
+  <issue id="UnusedResources">
+    <ignore regexp="res/drawable-(land-)?xhdpi/icn_(.*?)\.png" />
+  </issue>
+
+  <!-- Ignore IconDensities for xxhdpi because we only support xhdpi but we want a xxhdpi app icon -->
+  <issue id="IconDensities">
+    <ignore regexp="res/drawable-xxhdpi" />
+  </issue>
+
+</lint>
+
+
+
