@@ -1,7 +1,18 @@
+plugins {
+    id 'net.ltgt.apt' version '0.7'
+}
+
 apply plugin: 'java'
+apply plugin: 'idea'
 apply plugin: 'checkstyle'
 apply plugin: 'pmd'
 apply plugin: 'findbugs'
+
+idea {
+    module {
+        generatedSourceDirs += project.file('build/generated/source/apt')
+    }
+}
 
 checkstyle {
     configFile file("../codequality/checkstyle-rules/checkstyle.xml")
@@ -26,4 +37,8 @@ tasks.withType(FindBugs) {
 
 dependencies {
     testCompile 'junit:junit:4.12'
+
+    compileOnly 'com.google.auto.value:auto-value:1.2'
+    apt 'com.google.auto.value:auto-value:1.2'
+
 }
