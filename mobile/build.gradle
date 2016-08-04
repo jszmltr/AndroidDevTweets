@@ -26,7 +26,9 @@ android {
 dependencies {
     compile project(':core')
 
-    compile 'com.android.support:appcompat-v7:23.3.0'
+    compile 'com.android.support:appcompat-v7:24.1.1'
+    compile 'com.android.support:recyclerview-v7:24.1.1'
+
 
     testCompile 'junit:junit:4.12'
 }
