@@ -6,10 +6,12 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 
 public class MainActivity extends AppCompatActivity {
+import com.ataulm.rv.SpacesItemDecoration;
 
 
     private RecyclerView recyclerView;
     private TweetsAdapter adapter;
+    private static final int SPAN_COUNT = 1;
 
     private MainActivityPresenter mainActivityPresenter;
 
@@ -21,6 +23,8 @@ public class MainActivity extends AppCompatActivity {
         recyclerView = ((RecyclerView) findViewById(R.id.recycler_view));
         adapter = new TweetsAdapter();
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        int spacing = getResources().getDimensionPixelSize(R.dimen.spacing);
+        recyclerView.addItemDecoration(SpacesItemDecoration.newInstance(spacing, spacing, SPAN_COUNT));
         recyclerView.setAdapter(adapter);
 
         mainActivityPresenter = new MainActivityPresenter(adapter);
