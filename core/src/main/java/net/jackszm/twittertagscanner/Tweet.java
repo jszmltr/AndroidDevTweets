@@ -2,10 +2,12 @@ package net.jackszm.twittertagscanner;
 
 import com.google.auto.value.AutoValue;
 
+import java.net.URI;
+
 @AutoValue
 public abstract class Tweet {
 
-    public static Tweet create(String id, String content, String authorDisplayName, String authorHandle, String authorAvatar) {
+    public static Tweet create(String id, String content, String authorDisplayName, String authorHandle, URI authorAvatar) {
         return new AutoValue_Tweet(id, content, authorDisplayName, authorHandle, authorAvatar);
     }
 
@@ -17,6 +19,6 @@ public abstract class Tweet {
 
     public abstract String authorHandle();
 
-    public abstract String authorAvatar();
+    public abstract URI authorAvatar();
 
 }
