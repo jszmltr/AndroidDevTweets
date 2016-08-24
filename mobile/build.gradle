@@ -5,7 +5,7 @@ android {
     buildToolsVersion "23.0.3"
 
     defaultConfig {
-        applicationId "net.jackszm.twittertagscanner"
+        applicationId "jackszm.androiddevtweets"
         minSdkVersion 19
         targetSdkVersion 24
         versionCode 1
