@@ -19,7 +19,8 @@ android {
     }
 
     lintOptions {
-        lintConfig file("lint-config.xml")
+        lintConfig file('../codequality/lint-rules/config.xml')
+        abortOnError false
     }
 }
 
