@@ -8,8 +8,6 @@ import android.view.ViewGroup;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.jackszm.twittertagscanner.Tweet;
-
 class TweetsAdapter extends RecyclerView.Adapter<TweetsAdapter.TweetViewHolder> implements MainActivityPresenter.TweetsDisplayer {
 
     private List<Tweet> tweets = new ArrayList<>();

@@ -4,8 +4,6 @@ import java.net.URI;
 import java.util.Arrays;
 import java.util.List;
 
-import net.jackszm.twittertagscanner.Tweet;
-
 public class MainActivityPresenter {
 
     private final TweetsDisplayer tweetsDisplayer;

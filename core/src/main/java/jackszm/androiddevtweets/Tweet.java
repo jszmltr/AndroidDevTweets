@@ -1,4 +1,4 @@
-package net.jackszm.twittertagscanner;
+package jackszm.androiddevtweets;
 
 import com.google.auto.value.AutoValue;
 
