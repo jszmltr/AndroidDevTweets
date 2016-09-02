@@ -5,33 +5,34 @@ android {
     buildToolsVersion "23.0.3"
 
     defaultConfig {
-        applicationId "net.jackszm.twittertagscanner"
-        minSdkVersion 16
-        targetSdkVersion 23
+        applicationId "jackszm.androiddevtweets"
+        minSdkVersion 19
+        targetSdkVersion 24
         versionCode 1
         versionName "1.0"
     }
     buildTypes {
         release {
-            minifyEnabled false
+            minifyEnabled true
             proguardFile '../codequality/proguard-rules.pro'
         }
     }
 
     lintOptions {
         lintConfig file('../codequality/lint-rules/config.xml')
+        abortOnError false
     }
 }
 
 dependencies {
     compile project(':core')
 
-    compile 'com.android.support:appcompat-v7:24.1.1'
-    compile 'com.android.support:recyclerview-v7:24.1.1'
+    compile 'com.android.support:appcompat-v7:24.2.0'
+    compile 'com.android.support:recyclerview-v7:24.2.0'
 
     compile 'com.ataulm:rv-tools:1.0.0'
 
     compile 'com.squareup.picasso:picasso:2.5.2'
-
+    
     testCompile 'junit:junit:4.12'
 }

@@ -1,4 +1,4 @@
-package net.jackszm.twittertagscanner;
+package jackszm.androiddevtweets;
 
 import android.widget.ImageView;
 
