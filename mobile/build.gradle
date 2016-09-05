@@ -28,6 +28,11 @@ dependencies {
     compile project(':core')
 
     compile 'com.android.support:appcompat-v7:24.2.0'
+    compile 'com.android.support:recyclerview-v7:24.2.0'
 
+    compile 'com.ataulm:rv-tools:1.0.0'
+
+    compile 'com.squareup.picasso:picasso:2.5.2'
+    
     testCompile 'junit:junit:4.12'
 }
