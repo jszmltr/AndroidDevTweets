@@ -3,3 +3,6 @@
 -keep class android.support.v4.** { *; }
 -keep interface android.support.v4.app.** { *; }
 -keep public class * extends android.support.v4.**
+
+-dontwarn com.squareup.picasso.**
+
