@@ -7,6 +7,9 @@ import android.support.v7.widget.RecyclerView;
 
 import com.ataulm.rv.SpacesItemDecoration;
 
+import rx.Scheduler;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.schedulers.Schedulers;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -27,7 +30,10 @@ public class MainActivity extends AppCompatActivity {
         recyclerView.addItemDecoration(SpacesItemDecoration.newInstance(spacing, spacing, SPAN_COUNT));
         recyclerView.setAdapter(adapter);
 
-        mainActivityPresenter = new MainActivityPresenter(adapter);
+        Scheduler subscribeOnScheduler = Schedulers.io();
+        Scheduler observeOnScheduler = AndroidSchedulers.mainThread();
+
+        mainActivityPresenter = new MainActivityPresenter(adapter, subscribeOnScheduler, observeOnScheduler);
     }
 
     @Override
