@@ -33,6 +33,10 @@ dependencies {
     compile 'com.ataulm:rv-tools:1.0.0'
 
     compile 'com.squareup.picasso:picasso:2.5.2'
-    
+
+    compile('io.reactivex:rxandroid:1.2.1') {
+        exclude group: 'io.reactivex', module: 'rxjava'
+    }
+
     testCompile 'junit:junit:4.12'
 }
