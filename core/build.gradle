@@ -30,6 +30,10 @@ findbugs {
     toolVersion = "3.0.0"
 }
 
+pmdTest.enabled = false
+checkstyleTest.enabled = false
+findbugsTest.enabled = false
+
 tasks.withType(FindBugs) {
     reports {
         def htmlOn = project.hasProperty('htmlFindbugs')
