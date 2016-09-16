@@ -17,7 +17,7 @@ public class TweetsService {
     private Callable<List<Tweet>> load() {
         return new Callable<List<Tweet>>() {
             @Override
-            public List<Tweet> call() throws Exception {
+            public List<Tweet> call() {
                 return Arrays.asList(
                         Tweet.create("id-1", "Material-Animations is trending on Github right now! https://github.com/lgvalle/Material-Animations #materialdesign #androiddev", "Luis Valle", "lgvalle", URI.create("https://pbs.twimg.com/profile_images/752093150534070272/7PD9PUhe_400x400.jpg")),
                         Tweet.create("id-2", "Just published a quick post about how to improve your continuous delivery process thanks to @jenkinsci pipelines.", "Daniele Bonaldo", "danybony_", URI.create("https://pbs.twimg.com/profile_images/500605090965630976/ztUmaIkw_400x400.jpeg")),
