@@ -7,6 +7,7 @@ import android.support.v7.widget.RecyclerView;
 
 import com.ataulm.rv.SpacesItemDecoration;
 
+import jackszm.androiddevtweets.tweets.TweetsService;
 import rx.Scheduler;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
@@ -30,10 +31,11 @@ public class MainActivity extends AppCompatActivity {
         recyclerView.addItemDecoration(SpacesItemDecoration.newInstance(spacing, spacing, SPAN_COUNT));
         recyclerView.setAdapter(adapter);
 
+        TweetsService tweetsService = new TweetsService();
         Scheduler subscribeOnScheduler = Schedulers.io();
         Scheduler observeOnScheduler = AndroidSchedulers.mainThread();
 
-        mainActivityPresenter = new MainActivityPresenter(adapter, subscribeOnScheduler, observeOnScheduler);
+        mainActivityPresenter = new MainActivityPresenter(tweetsService, adapter, subscribeOnScheduler, observeOnScheduler);
     }
 
     @Override
