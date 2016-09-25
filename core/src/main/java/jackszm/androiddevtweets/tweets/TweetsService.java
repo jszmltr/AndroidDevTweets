@@ -1,31 +1,65 @@
 package jackszm.androiddevtweets.tweets;
 
 import java.net.URI;
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.Callable;
 
-import jackszm.androiddevtweets.Tweet;
+import jackszm.androiddevtweets.domain.Tweet;
+import jackszm.androiddevtweets.domain.api.ApiTweet;
+import jackszm.androiddevtweets.api.Deserializer;
+import jackszm.androiddevtweets.api.TwitterApi;
 import rx.Observable;
+import rx.functions.Func1;
 
 public class TweetsService {
 
-    public Observable<List<Tweet>> loadTweets() {
-        return Observable.fromCallable(load());
+    private final TwitterApi twitterApi;
+    private final Deserializer deserializer;
+
+    public static TweetsService newInstance() {
+        TwitterApi twitterApi = TwitterApi.newInstance();
+        Deserializer deserializer = Deserializer.newInstance();
+        return new TweetsService(twitterApi, deserializer);
     }
 
-    private Callable<List<Tweet>> load() {
-        return new Callable<List<Tweet>>() {
+    TweetsService(TwitterApi twitterApi, Deserializer deserializer) {
+        this.twitterApi = twitterApi;
+        this.deserializer = deserializer;
+    }
+
+    public Observable<List<Tweet>> loadTweets(String accessToken) {
+        return twitterApi.getAndroidDevTweets(accessToken)
+                .map(deserialize())
+                .map(marshal());
+    }
+
+    private Func1<List<ApiTweet>, List<Tweet>> marshal() {
+        return new Func1<List<ApiTweet>, List<Tweet>>() {
             @Override
-            public List<Tweet> call() {
-                return Arrays.asList(
-                        Tweet.create("id-1", "Material-Animations is trending on Github right now! https://github.com/lgvalle/Material-Animations #materialdesign #androiddev", "Luis Valle", "lgvalle", URI.create("https://pbs.twimg.com/profile_images/752093150534070272/7PD9PUhe_400x400.jpg")),
-                        Tweet.create("id-2", "Just published a quick post about how to improve your continuous delivery process thanks to @jenkinsci pipelines.", "Daniele Bonaldo", "danybony_", URI.create("https://pbs.twimg.com/profile_images/500605090965630976/ztUmaIkw_400x400.jpeg")),
-                        Tweet.create("id-3", "🎉100+ Stars 🎉 If you haven’t, check out Google Material Icons for Sketch Repo https://github.com/LPZilva/Google-Material-Icons-for-Sketch … @GoogleDesign", "Luis da Silva  ", "LPZilva", URI.create("https://pbs.twimg.com/profile_images/744938574223532032/JhRHYd96_400x400.jpg")),
-                        Tweet.create("id-4", "- Shall we create a Snapchat rip-off? - Nah.Let's call it \"Instagram Stories\"", "Luis da Silva  ", "LPZilva", URI.create("https://pbs.twimg.com/profile_images/744938574223532032/JhRHYd96_400x400.jpg")),
-                        Tweet.create("id-5", ".@blundell_apps @novoda via the nearest pokestops near you", "Kevin McDonagh", "@kevinmcdonagh", URI.create("https://pbs.twimg.com/profile_images/2331994386/s0odku3nri6svys0gtrt_bigger.jpeg"))
-                );
+            public List<Tweet> call(List<ApiTweet> apiTweets) {
+                List<Tweet> tweets = new ArrayList<>(apiTweets.size());
+                for (ApiTweet apiTweet : apiTweets) {
+                    Tweet tweet = Tweet.create(
+                            apiTweet.id,
+                            apiTweet.retweetedStatus.text,
+                            apiTweet.retweetedStatus.user.name,
+                            apiTweet.retweetedStatus.user.screenName,
+                            URI.create(apiTweet.retweetedStatus.user.profileImageUrl)
+                    );
+                    tweets.add(tweet);
+                }
+                return tweets;
             }
         };
     }
+
+    private Func1<String, List<ApiTweet>> deserialize() {
+        return new Func1<String, List<ApiTweet>>() {
+            @Override
+            public List<ApiTweet> call(String json) {
+                return deserializer.deserializeList(json, ApiTweet.class);
+            }
+        };
+    }
+
 }
