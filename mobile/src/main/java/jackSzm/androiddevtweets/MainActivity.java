@@ -24,11 +24,11 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         RecyclerView recyclerView = ((RecyclerView) findViewById(R.id.recycler_view));
-        TweetsAdapter adapter = new TweetsAdapter();
-
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         int spacing = getResources().getDimensionPixelSize(R.dimen.spacing);
         recyclerView.addItemDecoration(SpacesItemDecoration.newInstance(spacing, spacing, SPAN_COUNT));
+
+        TweetsAdapter adapter = new TweetsAdapter();
         recyclerView.setAdapter(adapter);
 
         TweetsService tweetsService = new TweetsService();
