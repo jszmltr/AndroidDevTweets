@@ -1,4 +1,11 @@
 apply plugin: 'com.android.application'
+apply plugin: 'com.novoda.build-properties'
+
+buildProperties {
+    secrets {
+        file project.file('../twitter_keys')
+    }
+}
 
 android {
     compileSdkVersion 24
@@ -10,6 +17,8 @@ android {
         targetSdkVersion 24
         versionCode 1
         versionName "1.0"
+
+        resValueProperty 'twitter_authorization_key', buildProperties.secrets['authorization_key']
     }
     buildTypes {
         release {
@@ -27,8 +36,8 @@ android {
 dependencies {
     compile project(':core')
 
-    compile 'com.android.support:appcompat-v7:24.2.0'
-    compile 'com.android.support:recyclerview-v7:24.2.0'
+    compile 'com.android.support:appcompat-v7:24.2.1'
+    compile 'com.android.support:recyclerview-v7:24.2.1'
 
     compile 'com.ataulm:rv-tools:1.0.0'
 
