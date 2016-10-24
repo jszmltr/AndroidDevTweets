@@ -13,7 +13,9 @@ public class Deserializer {
     private final Moshi moshi;
 
     public static Deserializer newInstance() {
-        Moshi moshi = new Moshi.Builder().build();
+        Moshi moshi = new Moshi.Builder()
+                .add(ApiAdapterFactory.create())
+                .build();
         return new Deserializer(moshi);
     }
 
@@ -37,4 +39,5 @@ public class Deserializer {
             super(cause);
         }
     }
+
 }

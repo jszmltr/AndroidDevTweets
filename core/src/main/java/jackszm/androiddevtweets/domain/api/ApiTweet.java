@@ -1,33 +1,25 @@
 package jackszm.androiddevtweets.domain.api;
 
+import com.google.auto.value.AutoValue;
 import com.squareup.moshi.Json;
+import com.squareup.moshi.JsonAdapter;
+import com.squareup.moshi.Moshi;
 
-public class ApiTweet {
+@AutoValue
+public abstract class ApiTweet {
+
+    public static ApiTweet create(String id, ApiRetweetedStatus apiRetweetedStatus) {
+        return new AutoValue_ApiTweet(id, apiRetweetedStatus);
+    }
+
+    public static JsonAdapter<ApiTweet> jsonAdapter(Moshi moshi) {
+        return new AutoValue_ApiTweet.MoshiJsonAdapter(moshi);
+    }
+
     @Json(name = "id")
-    public String id;
+    public abstract String id();
 
     @Json(name = "retweeted_status")
-    public ApiRetweetedStatus retweetedStatus;
-
-    public static class ApiRetweetedStatus {
-        @Json(name = "text")
-        public String text;
-
-        @Json(name = "user")
-        public ApiUser user;
-
-    }
-
-    public static class ApiUser {
-        @Json(name = "name")
-        public String name;
-
-        @Json(name = "screen_name")
-        public String screenName;
-
-        @Json(name = "profile_image_url")
-        public String profileImageUrl;
-
-    }
+    public abstract ApiRetweetedStatus retweetedStatus();
 
 }

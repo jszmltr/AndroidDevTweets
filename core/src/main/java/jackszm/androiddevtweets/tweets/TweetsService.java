@@ -4,10 +4,10 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 
-import jackszm.androiddevtweets.domain.Tweet;
-import jackszm.androiddevtweets.domain.api.ApiTweet;
 import jackszm.androiddevtweets.api.Deserializer;
 import jackszm.androiddevtweets.api.TwitterApi;
+import jackszm.androiddevtweets.domain.Tweet;
+import jackszm.androiddevtweets.domain.api.ApiTweet;
 import rx.Observable;
 import rx.functions.Func1;
 
@@ -30,21 +30,21 @@ public class TweetsService {
     public Observable<List<Tweet>> loadTweets(String accessToken) {
         return twitterApi.getAndroidDevTweets(accessToken)
                 .map(deserialize())
-                .map(marshal());
+                .map(convert());
     }
 
-    private Func1<List<ApiTweet>, List<Tweet>> marshal() {
+    private Func1<List<ApiTweet>, List<Tweet>> convert() {
         return new Func1<List<ApiTweet>, List<Tweet>>() {
             @Override
             public List<Tweet> call(List<ApiTweet> apiTweets) {
                 List<Tweet> tweets = new ArrayList<>(apiTweets.size());
                 for (ApiTweet apiTweet : apiTweets) {
                     Tweet tweet = Tweet.create(
-                            apiTweet.id,
-                            apiTweet.retweetedStatus.text,
-                            apiTweet.retweetedStatus.user.name,
-                            apiTweet.retweetedStatus.user.screenName,
-                            URI.create(apiTweet.retweetedStatus.user.profileImageUrl)
+                            apiTweet.id(),
+                            apiTweet.retweetedStatus().text(),
+                            apiTweet.retweetedStatus().user().name(),
+                            apiTweet.retweetedStatus().user().screenName(),
+                            URI.create(apiTweet.retweetedStatus().user().profileImageUrl())
                     );
                     tweets.add(tweet);
                 }

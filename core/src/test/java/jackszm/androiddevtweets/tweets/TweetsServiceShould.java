@@ -1,30 +1,77 @@
 package jackszm.androiddevtweets.tweets;
 
+import java.util.List;
+
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnit;
+import org.mockito.junit.MockitoRule;
+
+import jackszm.androiddevtweets.api.Deserializer;
+import jackszm.androiddevtweets.api.TwitterApi;
+import jackszm.androiddevtweets.domain.Tweet;
+import rx.Observable;
+import rx.observers.TestSubscriber;
+
+import static org.mockito.BDDMockito.given;
+
 public class TweetsServiceShould {
+
+    private static final String ANY_ACCES_TOKEN = "access_token";
+    @Rule
+    public MockitoRule rule = MockitoJUnit.rule();
+
+    @Mock
+    TwitterApi twitterApi;
+    @Mock
+    Deserializer deserializer;
 
     private TweetsService tweetsService;
 
-//    @Before
-//    public void setUp() throws Exception {
-//        tweetsService = new TweetsService(twitterApi, deserializer);
-//    }
-//
-//    @Test
-//    public void loadTweets() {
-//        TestSubscriber<List<Tweet>> testSubscriber = new TestSubscriber<>();
-//
-//        tweetsService.loadTweets().subscribe(testSubscriber);
-//
-//        assertThat(testSubscriber.getOnNextEvents().get(0)).isEqualTo(expectedTweets());
-//    }
-//
-//    private List<Tweet> expectedTweets() {
-//        return Arrays.asList(
-//                Tweet.create("id-1", "Material-Animations is trending on Github right now! https://github.com/lgvalle/Material-Animations #materialdesign #androiddev", "Luis Valle", "lgvalle", URI.create("https://pbs.twimg.com/profile_images/752093150534070272/7PD9PUhe_400x400.jpg")),
-//                Tweet.create("id-2", "Just published a quick post about how to improve your continuous delivery process thanks to @jenkinsci pipelines.", "Daniele Bonaldo", "danybony_", URI.create("https://pbs.twimg.com/profile_images/500605090965630976/ztUmaIkw_400x400.jpeg")),
-//                Tweet.create("id-3", "🎉100+ Stars 🎉 If you haven’t, check out Google Material Icons for Sketch Repo https://github.com/LPZilva/Google-Material-Icons-for-Sketch … @GoogleDesign", "Luis da Silva  ", "LPZilva", URI.create("https://pbs.twimg.com/profile_images/744938574223532032/JhRHYd96_400x400.jpg")),
-//                Tweet.create("id-4", "- Shall we create a Snapchat rip-off? - Nah.Let's call it \"Instagram Stories\"", "Luis da Silva  ", "LPZilva", URI.create("https://pbs.twimg.com/profile_images/744938574223532032/JhRHYd96_400x400.jpg")),
-//                Tweet.create("id-5", ".@blundell_apps @novoda via the nearest pokestops near you", "Kevin McDonagh", "@kevinmcdonagh", URI.create("https://pbs.twimg.com/profile_images/2331994386/s0odku3nri6svys0gtrt_bigger.jpeg"))
-//        );
-//    }
+    @Before
+    public void setUp() throws Exception {
+        tweetsService = new TweetsService(twitterApi, deserializer);
+    }
+
+    @Test
+    public void loadTweets() {
+        given(twitterApi.getAndroidDevTweets(ANY_ACCES_TOKEN)).willReturn(expectedApiTweets());
+
+        Observable<List<Tweet>> listObservable = tweetsService.loadTweets(ANY_ACCES_TOKEN);
+        TestSubscriber<List<Tweet>> subscriber = new TestSubscriber<>();
+        listObservable.subscribe(subscriber);
+
+        System.out.println(subscriber.getOnNextEvents().get(0));
+    }
+
+    private Observable<String> expectedApiTweets() {
+        return Observable.just(
+                "[" +
+                        "  {" +
+                        "    \"id\": 786328858542866433," +
+                        "    \"retweeted_status\": {" +
+                        "      \"text\": \"This looks amazing. I will be checking this out. #AndroidDev #GoogleSamples https://t.co/iDlDHHHyP4\"," +
+                        "      \"user\": {" +
+                        "        \"name\": \"Alistair Sykes\"," +
+                        "        \"screen_name\": \"SykesAlistair\"," +
+                        "        \"profile_image_url\": \"http://pbs.twimg.com/profile_images/774589500194447360/4W-h_0iY_normal.jpg\"," +
+                        "      }" +
+                        "    }" +
+                        "  }," +
+                        "  {" +
+                        "    \"id\": 786326341520154624," +
+                        "    \"retweeted_status\": {" +
+                        "      \"text\": \"We are hiring: Software Development Engineer, Android Software Development  https://t.co/yqaB0frjTL #job @AmazonMiddleMile #androiddev\"," +
+                        "      \"user\": {" +
+                        "        \"name\": \"Shauna Goulet\"," +
+                        "        \"screen_name\": \"ShaunaGoulet\"," +
+                        "        \"profile_image_url\": \"http://pbs.twimg.com/profile_images/558745978560204800/IT2YFjII_normal.jpeg\"," +
+                        "      }" +
+                        "    }" +
+                        "  }" +
+                        "]"
+        );
+    }
 }
