@@ -8,10 +8,6 @@ import com.squareup.moshi.Moshi;
 @AutoValue
 public abstract class ApiTweet {
 
-    public static ApiTweet create(String id, ApiRetweetedStatus apiRetweetedStatus) {
-        return new AutoValue_ApiTweet(id, apiRetweetedStatus);
-    }
-
     public static JsonAdapter<ApiTweet> jsonAdapter(Moshi moshi) {
         return new AutoValue_ApiTweet.MoshiJsonAdapter(moshi);
     }

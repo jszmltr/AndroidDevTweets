@@ -8,10 +8,6 @@ import com.squareup.moshi.Moshi;
 @AutoValue
 public abstract class ApiUser {
 
-    public static ApiUser create(String name, String screenName, String profileImageUrl) {
-        return new AutoValue_ApiUser(name, screenName, profileImageUrl);
-    }
-
     public static JsonAdapter<ApiUser> jsonAdapter(Moshi moshi) {
         return new AutoValue_ApiUser.MoshiJsonAdapter(moshi);
     }
