@@ -5,8 +5,14 @@ import com.squareup.moshi.Moshi;
 import com.squareup.moshi.Types;
 
 import java.io.IOException;
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 import java.util.List;
+import java.util.Set;
+
+import jackszm.androiddevtweets.domain.api.ApiRetweetedStatus;
+import jackszm.androiddevtweets.domain.api.ApiTweet;
+import jackszm.androiddevtweets.domain.api.ApiUser;
 
 public class Deserializer {
 
@@ -14,7 +20,7 @@ public class Deserializer {
 
     public static Deserializer newInstance() {
         Moshi moshi = new Moshi.Builder()
-                .add(ApiAdapterFactory.create())
+                .add(new AutoValueAdapterFactory())
                 .build();
         return new Deserializer(moshi);
     }
@@ -33,10 +39,25 @@ public class Deserializer {
         }
     }
 
-    static class DeserializerException extends RuntimeException {
+    private static class DeserializerException extends RuntimeException {
 
         DeserializerException(Throwable cause) {
             super(cause);
+        }
+    }
+
+    private static final class AutoValueAdapterFactory implements JsonAdapter.Factory {
+        @Override
+        public JsonAdapter<?> create(Type type, Set<? extends Annotation> annotations, Moshi moshi) {
+            if (type.equals(ApiRetweetedStatus.class)) {
+                return ApiRetweetedStatus.jsonAdapter(moshi);
+            } else if (type.equals(ApiTweet.class)) {
+                return ApiTweet.jsonAdapter(moshi);
+            } else if (type.equals(ApiUser.class)) {
+                return ApiUser.jsonAdapter(moshi);
+            } else {
+                return null;
+            }
         }
     }
 
