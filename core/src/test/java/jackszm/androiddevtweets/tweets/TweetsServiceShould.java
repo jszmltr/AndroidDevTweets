@@ -1,5 +1,7 @@
 package jackszm.androiddevtweets.tweets;
 
+import java.net.URI;
+import java.util.Arrays;
 import java.util.List;
 
 import org.junit.Before;
@@ -15,35 +17,38 @@ import jackszm.androiddevtweets.domain.Tweet;
 import rx.Observable;
 import rx.observers.TestSubscriber;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
 
 public class TweetsServiceShould {
 
-    private static final String ANY_ACCES_TOKEN = "access_token";
+    private static final String ANY_ACCESS_TOKEN = "access_token";
     @Rule
     public MockitoRule rule = MockitoJUnit.rule();
 
     @Mock
     TwitterApi twitterApi;
-    @Mock
-    Deserializer deserializer;
+
+    private final Deserializer deserializer = Deserializer.newInstance();
+    private final TweetsConverter converter = new TweetsConverter();
 
     private TweetsService tweetsService;
 
     @Before
     public void setUp() throws Exception {
-        tweetsService = new TweetsService(twitterApi, deserializer);
+        tweetsService = new TweetsService(twitterApi, deserializer, converter);
     }
 
     @Test
     public void loadTweets() {
-        given(twitterApi.getAndroidDevTweets(ANY_ACCES_TOKEN)).willReturn(expectedApiTweets());
+        given(twitterApi.getAndroidDevTweets(ANY_ACCESS_TOKEN)).willReturn(expectedApiTweets());
 
-        Observable<List<Tweet>> listObservable = tweetsService.loadTweets(ANY_ACCES_TOKEN);
+        Observable<List<Tweet>> listObservable = tweetsService.loadTweets(ANY_ACCESS_TOKEN);
         TestSubscriber<List<Tweet>> subscriber = new TestSubscriber<>();
         listObservable.subscribe(subscriber);
 
-        System.out.println(subscriber.getOnNextEvents().get(0));
+        List<Tweet> tweets = subscriber.getOnNextEvents().get(0);
+        assertThat(tweets).isEqualTo(expectedTweets());
     }
 
     private Observable<String> expectedApiTweets() {
@@ -56,7 +61,7 @@ public class TweetsServiceShould {
                         "      \"user\": {" +
                         "        \"name\": \"Alistair Sykes\"," +
                         "        \"screen_name\": \"SykesAlistair\"," +
-                        "        \"profile_image_url\": \"http://pbs.twimg.com/profile_images/774589500194447360/4W-h_0iY_normal.jpg\"," +
+                        "        \"profile_image_url\": \"http://pbs.twimg.com/profile_images/774589500194447360/4W-h_0iY_normal.jpg\"" +
                         "      }" +
                         "    }" +
                         "  }," +
@@ -67,11 +72,30 @@ public class TweetsServiceShould {
                         "      \"user\": {" +
                         "        \"name\": \"Shauna Goulet\"," +
                         "        \"screen_name\": \"ShaunaGoulet\"," +
-                        "        \"profile_image_url\": \"http://pbs.twimg.com/profile_images/558745978560204800/IT2YFjII_normal.jpeg\"," +
+                        "        \"profile_image_url\": \"http://pbs.twimg.com/profile_images/558745978560204800/IT2YFjII_normal.jpeg\"" +
                         "      }" +
                         "    }" +
                         "  }" +
                         "]"
+        );
+    }
+
+    private List<Tweet> expectedTweets() {
+        return Arrays.asList(
+                Tweet.create(
+                        "786328858542866433",
+                        "This looks amazing. I will be checking this out. #AndroidDev #GoogleSamples https://t.co/iDlDHHHyP4",
+                        "Alistair Sykes",
+                        "SykesAlistair",
+                        URI.create("http://pbs.twimg.com/profile_images/774589500194447360/4W-h_0iY_normal.jpg")
+                ),
+                Tweet.create(
+                        "786326341520154624",
+                        "We are hiring: Software Development Engineer, Android Software Development  https://t.co/yqaB0frjTL #job @AmazonMiddleMile #androiddev",
+                        "Shauna Goulet",
+                        "ShaunaGoulet",
+                        URI.create("http://pbs.twimg.com/profile_images/558745978560204800/IT2YFjII_normal.jpeg")
+                )
         );
     }
 }

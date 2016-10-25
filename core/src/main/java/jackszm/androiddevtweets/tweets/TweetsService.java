@@ -1,7 +1,5 @@
 package jackszm.androiddevtweets.tweets;
 
-import java.net.URI;
-import java.util.ArrayList;
 import java.util.List;
 
 import jackszm.androiddevtweets.api.Deserializer;
@@ -15,42 +13,25 @@ public class TweetsService {
 
     private final TwitterApi twitterApi;
     private final Deserializer deserializer;
+    private final TweetsConverter converter;
 
     public static TweetsService newInstance() {
         TwitterApi twitterApi = TwitterApi.newInstance();
         Deserializer deserializer = Deserializer.newInstance();
-        return new TweetsService(twitterApi, deserializer);
+        TweetsConverter converter = new TweetsConverter();
+        return new TweetsService(twitterApi, deserializer, converter);
     }
 
-    TweetsService(TwitterApi twitterApi, Deserializer deserializer) {
+    TweetsService(TwitterApi twitterApi, Deserializer deserializer, TweetsConverter converter) {
         this.twitterApi = twitterApi;
         this.deserializer = deserializer;
+        this.converter = converter;
     }
 
     public Observable<List<Tweet>> loadTweets(String accessToken) {
         return twitterApi.getAndroidDevTweets(accessToken)
                 .map(deserialize())
                 .map(convert());
-    }
-
-    private Func1<List<ApiTweet>, List<Tweet>> convert() {
-        return new Func1<List<ApiTweet>, List<Tweet>>() {
-            @Override
-            public List<Tweet> call(List<ApiTweet> apiTweets) {
-                List<Tweet> tweets = new ArrayList<>(apiTweets.size());
-                for (ApiTweet apiTweet : apiTweets) {
-                    Tweet tweet = Tweet.create(
-                            apiTweet.id(),
-                            apiTweet.retweetedStatus().text(),
-                            apiTweet.retweetedStatus().user().name(),
-                            apiTweet.retweetedStatus().user().screenName(),
-                            URI.create(apiTweet.retweetedStatus().user().profileImageUrl())
-                    );
-                    tweets.add(tweet);
-                }
-                return tweets;
-            }
-        };
     }
 
     private Func1<String, List<ApiTweet>> deserialize() {
@@ -62,4 +43,15 @@ public class TweetsService {
         };
     }
 
+    private Func1<List<ApiTweet>, List<Tweet>> convert() {
+        return new Func1<List<ApiTweet>, List<Tweet>>() {
+            @Override
+            public List<Tweet> call(List<ApiTweet> apiTweets) {
+                return converter.convert(apiTweets);
+            }
+        };
+    }
+
 }
+
+
