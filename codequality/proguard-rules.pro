@@ -21,3 +21,5 @@
     long producerNode;
     long consumerNode;
 }
+
+-dontwarn okio.**
