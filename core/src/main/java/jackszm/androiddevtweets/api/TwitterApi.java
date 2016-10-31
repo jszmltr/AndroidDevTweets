@@ -9,7 +9,6 @@ public class TwitterApi {
     private static final String BASE_URL = "https://api.twitter.com/";
 
     private static final String URL_GET_ANDROID_DEV_TWEETS = "1.1/statuses/user_timeline.json?count=100&screen_name=androiddevRTbot";
-    private static final String URL_GET_ACCESS_TOKEN = "oauth2/token";
 
     private final RequestExecutor requestExecutor;
 
@@ -25,7 +24,7 @@ public class TwitterApi {
     public Observable<String> getAndroidDevTweets(final String accessToken) {
         return Observable.fromCallable(new Callable<String>() {
             @Override
-            public String call() throws Exception {
+            public String call() {
                 Request request = Request.builder(BASE_URL)
                         .path(URL_GET_ANDROID_DEV_TWEETS)
                         .bearerAuthorization(accessToken)
@@ -33,7 +32,6 @@ public class TwitterApi {
 
                 return requestExecutor.executeRequest(request);
             }
-
         });
     }
 
