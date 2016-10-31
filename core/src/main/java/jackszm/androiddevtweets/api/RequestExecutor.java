@@ -18,7 +18,7 @@ public class RequestExecutor {
 
     public String executeRequest(Request request) {
         try {
-            return client.newCall(request.request()).execute().body().string();
+            return client.newCall(request.rawRequest()).execute().body().string();
         } catch (IOException e) {
             throw new HttpException(e);
         }

@@ -12,7 +12,15 @@ class Request {
     private static final String BASIC_AUTHORIZATION_POST_KEY = "grant_type";
     private static final String BASIC_AUTHORIZATION_POST_VALUE = "client_credentials";
 
-    private final okhttp3.Request request;
+    private final okhttp3.Request rawRequest;
+
+    Request(okhttp3.Request rawRequest) {
+        this.rawRequest = rawRequest;
+    }
+
+    okhttp3.Request rawRequest() {
+        return rawRequest;
+    }
 
     public static Builder builder(String baseUrl) {
         return new Builder(new okhttp3.Request.Builder(), baseUrl);
@@ -24,7 +32,7 @@ class Request {
 
         private final String baseUrl;
 
-        private Builder(okhttp3.Request.Builder requestBuilder, String baseUrl) {
+        Builder(okhttp3.Request.Builder requestBuilder, String baseUrl) {
             this.requestBuilder = requestBuilder;
             this.baseUrl = baseUrl;
         }
@@ -53,14 +61,6 @@ class Request {
         Request build() {
             return new Request(requestBuilder.build());
         }
-    }
-
-    private Request(okhttp3.Request request) {
-        this.request = request;
-    }
-
-    okhttp3.Request request() {
-        return request;
     }
 
 }
