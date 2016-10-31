@@ -7,6 +7,8 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import jackszm.androiddevtweets.domain.Tweet;
+
 public class TweetView extends LinearLayout {
 
     private ImageView authorAvatarImageView;

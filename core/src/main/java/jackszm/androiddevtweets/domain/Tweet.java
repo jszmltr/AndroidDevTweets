@@ -1,4 +1,4 @@
-package jackszm.androiddevtweets;
+package jackszm.androiddevtweets.domain;
 
 import com.google.auto.value.AutoValue;
 

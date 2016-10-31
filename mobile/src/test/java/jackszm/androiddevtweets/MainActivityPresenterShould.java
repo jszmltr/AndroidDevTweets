@@ -11,6 +11,7 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
 
+import jackszm.androiddevtweets.domain.Tweet;
 import jackszm.androiddevtweets.tweets.TweetsService;
 import rx.Observable;
 import rx.schedulers.Schedulers;
@@ -36,15 +37,22 @@ public class MainActivityPresenterShould {
 
     @Before
     public void setUp() throws Exception {
-        mainActivityPresenter = new MainActivityPresenter(tweetsService, tweetsDisplayer, Schedulers.immediate(), Schedulers.immediate());
+        mainActivityPresenter = new MainActivityPresenter(
+                tweetsService,
+                tweetsDisplayer,
+                Schedulers.immediate(),
+                Schedulers.immediate(),
+                "accessToken"
+        );
     }
 
     @Test
     public void displayTweetsReturnedByService_whenStartsPresenting() {
-        when(tweetsService.loadTweets()).thenReturn(Observable.just(TWEETS));
+        when(tweetsService.loadTweets("accessToken")).thenReturn(Observable.just(TWEETS));
 
         mainActivityPresenter.startPresenting();
 
         verify(tweetsDisplayer).displayTweets(TWEETS);
     }
+
 }
