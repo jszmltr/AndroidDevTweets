@@ -1,7 +1,6 @@
 package jackszm.androiddevtweets.api;
 
 import android.content.Context;
-import android.content.res.Resources;
 
 import jackszm.androiddevtweets.R;
 import jackszm.androiddevtweets.domain.api.ApiToken;
@@ -12,23 +11,23 @@ import static jackszm.androiddevtweets.api.TwitterApi.URL_POST_TOKEN;
 public class AccessTokenService implements AuthenticationService {
 
     private final AccessTokenStorage accessTokenStorage;
-    private final Resources resources;
     private final RequestExecutor requestExecutor;
     private final Deserializer deserializer;
+    private final String authorizationKey;
 
     public static AccessTokenService newInstance(Context context) {
         AccessTokenStorage accessTokenStorage = AccessTokenStorage.newInstance(context);
-        Resources resources = context.getResources();
         RequestExecutor requestExecutor = RequestExecutor.newInstance();
         Deserializer deserializer = Deserializer.newInstance();
-        return new AccessTokenService(accessTokenStorage, resources, requestExecutor, deserializer);
+        String authorizationKey = context.getResources().getString(R.string.twitter_authorization_key);
+        return new AccessTokenService(accessTokenStorage, requestExecutor, deserializer, authorizationKey);
     }
 
-    AccessTokenService(AccessTokenStorage accessTokenStorage, Resources resources, RequestExecutor requestExecutor, Deserializer deserializer) {
+    AccessTokenService(AccessTokenStorage accessTokenStorage, RequestExecutor requestExecutor, Deserializer deserializer, String authorizationKey) {
         this.accessTokenStorage = accessTokenStorage;
-        this.resources = resources;
         this.requestExecutor = requestExecutor;
         this.deserializer = deserializer;
+        this.authorizationKey = authorizationKey;
     }
 
     @Override
@@ -37,8 +36,6 @@ public class AccessTokenService implements AuthenticationService {
         if (cachedAccessToken.isPresent()) {
             return cachedAccessToken.get();
         }
-
-        String authorizationKey = resources.getString(R.string.twitter_authorization_key);
 
         Request request = Request.builder(TwitterApi.BASE_URL)
                 .path(URL_POST_TOKEN)
