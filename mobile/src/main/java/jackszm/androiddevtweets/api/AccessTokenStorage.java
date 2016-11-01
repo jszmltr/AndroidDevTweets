@@ -5,7 +5,7 @@ import android.content.SharedPreferences;
 
 import jackszm.androiddevtweets.support.Optional;
 
-public class AccessTokenStorage {
+class AccessTokenStorage {
 
     private static final String KEY_ACCESS_TOKEN = "access_token";
     private static final String UNUSED_ACCESS_TOKEN_DEFAULT = null;
@@ -20,7 +20,7 @@ public class AccessTokenStorage {
         return new AccessTokenStorage(preferences, KEY_ACCESS_TOKEN);
     }
 
-    public AccessTokenStorage(SharedPreferences preferences, String accessTokenKey) {
+    AccessTokenStorage(SharedPreferences preferences, String accessTokenKey) {
         this.preferences = preferences;
         this.accessTokenKey = accessTokenKey;
     }
