@@ -26,7 +26,6 @@ public class TwitterApi {
         return authenticationService.getAccessToken()
                 .map(toRequest())
                 .map(execute());
-
     }
 
     private Func1<String, Request> toRequest() {
