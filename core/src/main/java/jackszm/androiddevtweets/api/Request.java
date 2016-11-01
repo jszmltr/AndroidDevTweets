@@ -48,14 +48,15 @@ class Request {
         }
 
         public Builder basicAuthorization(String authorizationKey) {
-            RequestBody formBody = new FormBody.Builder()
-                    .add(BASIC_AUTHORIZATION_POST_KEY, BASIC_AUTHORIZATION_POST_VALUE)
-                    .build();
-
-            requestBuilder.post(formBody);
-
+            requestBuilder.post(basicAuthorizationFormBody());
             requestBuilder.header("Authorization", String.format(HEADER_AUTHORIZATION_BASIC, authorizationKey));
             return this;
+        }
+
+        private RequestBody basicAuthorizationFormBody() {
+            return new FormBody.Builder()
+                    .add(BASIC_AUTHORIZATION_POST_KEY, BASIC_AUTHORIZATION_POST_VALUE)
+                    .build();
         }
 
         Request build() {

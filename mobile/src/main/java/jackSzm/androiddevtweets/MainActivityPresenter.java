@@ -1,9 +1,11 @@
 package jackszm.androiddevtweets;
 
-import android.content.res.Resources;
+import android.content.Context;
 
 import java.util.List;
 
+import jackszm.androiddevtweets.api.AccessTokenService;
+import jackszm.androiddevtweets.api.AuthenticationService;
 import jackszm.androiddevtweets.domain.Tweet;
 import jackszm.androiddevtweets.tweets.TweetsService;
 import rx.Scheduler;
@@ -17,33 +19,30 @@ class MainActivityPresenter {
     private final Scheduler subscribeOnScheduler;
     private final Scheduler observeOnScheduler;
     private final TweetsService tweetsService;
-    private final String accessToken;
 
-    static MainActivityPresenter newInstance(TweetsDisplayer tweetsDisplayer, Resources resources) {
+    static MainActivityPresenter newInstance(TweetsDisplayer tweetsDisplayer, Context context) {
         Scheduler subscribeOnScheduler = Schedulers.io();
         Scheduler observeOnScheduler = AndroidSchedulers.mainThread();
-        TweetsService tweetsService = TweetsService.newInstance();
+        AccessTokenService accessTokenService = AccessTokenService.newInstance(context);
+        TweetsService tweetsService = TweetsService.newInstance(accessTokenService);
         return new MainActivityPresenter(
-                tweetsService,
                 tweetsDisplayer,
+                tweetsService,
                 subscribeOnScheduler,
-                observeOnScheduler,
-                resources.getString(R.string.twitter_authorization_key)
+                observeOnScheduler
         );
     }
 
     MainActivityPresenter(
-            TweetsService tweetsService,
             TweetsDisplayer tweetsDisplayer,
+            TweetsService tweetsService,
             Scheduler subscribeOnScheduler,
-            Scheduler observeOnScheduler,
-            String accessToken
+            Scheduler observeOnScheduler
     ) {
         this.tweetsDisplayer = tweetsDisplayer;
+        this.tweetsService = tweetsService;
         this.subscribeOnScheduler = subscribeOnScheduler;
         this.observeOnScheduler = observeOnScheduler;
-        this.tweetsService = tweetsService;
-        this.accessToken = accessToken;
     }
 
     void startPresenting() {
@@ -51,7 +50,7 @@ class MainActivityPresenter {
     }
 
     private void loadTweets() {
-        tweetsService.loadTweets(accessToken)
+        tweetsService.loadTweets()
                 .subscribeOn(subscribeOnScheduler)
                 .observeOn(observeOnScheduler)
                 .subscribe(displayTweets());

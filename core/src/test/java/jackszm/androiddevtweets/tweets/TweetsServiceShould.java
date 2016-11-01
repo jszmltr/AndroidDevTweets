@@ -36,7 +36,7 @@ public class TweetsServiceShould {
 
     @Before
     public void setUp() throws Exception {
-        tweetsService = new TweetsService(twitterApi, deserializer, converter);
+        tweetsService = new TweetsService(authenticationService, twitterApi, deserializer, converter);
     }
 
     @Test
