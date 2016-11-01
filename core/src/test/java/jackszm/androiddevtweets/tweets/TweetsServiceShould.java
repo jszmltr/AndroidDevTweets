@@ -22,7 +22,6 @@ import static org.mockito.BDDMockito.given;
 
 public class TweetsServiceShould {
 
-    private static final String ANY_ACCESS_TOKEN = "access_token";
     @Rule
     public MockitoRule rule = MockitoJUnit.rule();
 
@@ -36,14 +35,14 @@ public class TweetsServiceShould {
 
     @Before
     public void setUp() throws Exception {
-        tweetsService = new TweetsService(authenticationService, twitterApi, deserializer, converter);
+        tweetsService = new TweetsService(twitterApi, deserializer, converter);
     }
 
     @Test
     public void loadTweets() {
-        given(twitterApi.getAndroidDevTweets(ANY_ACCESS_TOKEN)).willReturn(expectedApiTweets());
+        given(twitterApi.getAndroidDevTweets()).willReturn(expectedApiTweets());
 
-        Observable<List<Tweet>> listObservable = tweetsService.loadTweets(ANY_ACCESS_TOKEN);
+        Observable<List<Tweet>> listObservable = tweetsService.loadTweets();
         TestSubscriber<List<Tweet>> subscriber = new TestSubscriber<>();
         listObservable.subscribe(subscriber);
 
