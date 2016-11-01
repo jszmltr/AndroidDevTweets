@@ -5,47 +5,66 @@ import android.content.Context;
 import jackszm.androiddevtweets.R;
 import jackszm.androiddevtweets.domain.api.ApiToken;
 import jackszm.androiddevtweets.support.Optional;
-
-import static jackszm.androiddevtweets.api.TwitterApi.URL_POST_TOKEN;
+import rx.Observable;
+import rx.functions.Action1;
+import rx.functions.Func1;
 
 public class AccessTokenService implements AuthenticationService {
 
     private final AccessTokenStorage accessTokenStorage;
-    private final RequestExecutor requestExecutor;
     private final Deserializer deserializer;
+    private final AuthenticationApi authenticationApi;
     private final String authorizationKey;
 
     public static AccessTokenService newInstance(Context context) {
         AccessTokenStorage accessTokenStorage = AccessTokenStorage.newInstance(context);
-        RequestExecutor requestExecutor = RequestExecutor.newInstance();
+
         Deserializer deserializer = Deserializer.newInstance();
         String authorizationKey = context.getResources().getString(R.string.twitter_authorization_key);
-        return new AccessTokenService(accessTokenStorage, requestExecutor, deserializer, authorizationKey);
+        AuthenticationApi authenticationApi = AuthenticationApi.newInstance();
+        return new AccessTokenService(accessTokenStorage, authenticationApi, deserializer, authorizationKey);
     }
 
-    AccessTokenService(AccessTokenStorage accessTokenStorage, RequestExecutor requestExecutor, Deserializer deserializer, String authorizationKey) {
+    AccessTokenService(AccessTokenStorage accessTokenStorage, AuthenticationApi authenticationApi, Deserializer deserializer, String authorizationKey) {
         this.accessTokenStorage = accessTokenStorage;
-        this.requestExecutor = requestExecutor;
+        this.authenticationApi = authenticationApi;
         this.deserializer = deserializer;
         this.authorizationKey = authorizationKey;
     }
 
     @Override
-    public String getAccessToken() {
+    public Observable<String> getAccessToken() {
         Optional<String> cachedAccessToken = accessTokenStorage.getCachedAccessToken();
         if (cachedAccessToken.isPresent()) {
-            return cachedAccessToken.get();
+            return Observable.just(cachedAccessToken.get());
+        } else {
+            return apiAccessToken();
         }
-
-        Request request = Request.builder(TwitterApi.BASE_URL)
-                .path(URL_POST_TOKEN)
-                .basicAuthorization(authorizationKey)
-                .build();
-
-        String response = requestExecutor.executeRequest(request);
-        ApiToken apiToken = deserializer.deserialize(response, ApiToken.class);
-        String accessToken = apiToken.accessToken();
-        accessTokenStorage.storeAccessToken(accessToken);
-        return accessToken;
     }
+
+    private Observable<String> apiAccessToken() {
+        return authenticationApi.getAccessTokenUsing(authorizationKey)
+                .map(toAccessToken())
+                .doOnNext(store());
+    }
+
+    private Func1<String, String> toAccessToken() {
+        return new Func1<String, String>() {
+            @Override
+            public String call(String response) {
+                ApiToken apiToken = deserializer.deserialize(response, ApiToken.class);
+                return apiToken.accessToken();
+            }
+        };
+    }
+
+    private Action1<String> store() {
+        return new Action1<String>() {
+            @Override
+            public void call(String accessToken) {
+                accessTokenStorage.storeAccessToken(accessToken);
+            }
+        };
+    }
+
 }

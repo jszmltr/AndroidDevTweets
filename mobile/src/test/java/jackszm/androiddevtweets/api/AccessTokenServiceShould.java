@@ -8,10 +8,11 @@ import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
 
 import jackszm.androiddevtweets.support.Optional;
+import rx.Observable;
+import rx.observers.TestObserver;
 
 import static org.assertj.core.api.Java6Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.verify;
 
 public class AccessTokenServiceShould {
@@ -26,7 +27,7 @@ public class AccessTokenServiceShould {
     @Mock
     AccessTokenStorage accessTokenStorage;
     @Mock
-    RequestExecutor requestExecutor;
+    AuthenticationApi authenticationApi;
 
     private AccessTokenService accessTokenService;
 
@@ -34,7 +35,7 @@ public class AccessTokenServiceShould {
     public void setUp() {
         accessTokenService = new AccessTokenService(
                 accessTokenStorage,
-                requestExecutor,
+                authenticationApi,
                 Deserializer.newInstance(),
                 AUTHORIZATION_KEY
         );
@@ -44,33 +45,35 @@ public class AccessTokenServiceShould {
     public void returnCachedAccessToken_whenItIsPresentInTheStorage() {
         given(accessTokenStorage.getCachedAccessToken()).willReturn(Optional.of(CACHED_ACCESS_TOKEN));
 
-        String accessToken = accessTokenService.getAccessToken();
+        TestObserver<String> observer = new TestObserver<>();
+        accessTokenService.getAccessToken().subscribe(observer);
 
-        assertThat(accessToken).isEqualTo(CACHED_ACCESS_TOKEN);
+        assertThat(observer.getOnNextEvents().get(0)).isEqualTo(CACHED_ACCESS_TOKEN);
     }
 
     @Test
     public void returnAccessTokenFromApi_whenCachedAccessTokenIsAbsent() {
         given(accessTokenStorage.getCachedAccessToken()).willReturn(Optional.<String>absent());
-        given(requestExecutor.executeRequest(any(Request.class))).willReturn(accessTokenResponse());
+        given(authenticationApi.getAccessTokenUsing(AUTHORIZATION_KEY)).willReturn(accessTokenResponse());
 
-        String accessToken = accessTokenService.getAccessToken();
+        TestObserver<String> observer = new TestObserver<>();
+        accessTokenService.getAccessToken().subscribe(observer);
 
-        assertThat(accessToken).isEqualTo(API_ACCESS_TOKEN);
+        assertThat(observer.getOnNextEvents().get(0)).isEqualTo(API_ACCESS_TOKEN);
     }
 
     @Test
     public void saveApiAccessToken_whenRetrievedFromTheApi() {
         given(accessTokenStorage.getCachedAccessToken()).willReturn(Optional.<String>absent());
-        given(requestExecutor.executeRequest(any(Request.class))).willReturn(accessTokenResponse());
+        given(authenticationApi.getAccessTokenUsing(AUTHORIZATION_KEY)).willReturn(accessTokenResponse());
 
-        accessTokenService.getAccessToken();
+        accessTokenService.getAccessToken().subscribe();
 
         verify(accessTokenStorage).storeAccessToken(API_ACCESS_TOKEN);
     }
 
-    private String accessTokenResponse() {
-        return "{\"access_token\": \"" + API_ACCESS_TOKEN + "\"}";
+    private Observable<String> accessTokenResponse() {
+        return Observable.just("{\"access_token\": \"" + API_ACCESS_TOKEN + "\"}");
     }
 
 }

@@ -1,6 +1,8 @@
 package jackszm.androiddevtweets.api;
 
+import rx.Observable;
+
 public interface AuthenticationService {
 
-    String getAccessToken();
+    Observable<String> getAccessToken();
 }
