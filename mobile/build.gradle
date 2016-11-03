@@ -17,8 +17,7 @@ android {
         targetSdkVersion 24
         versionCode 1
         versionName "1.0"
-
-        resValueProperty 'twitter_authorization_key', buildProperties.secrets['authorization_key']
+        buildConfigProperty 'TWITTER_KEY', buildProperties.secrets['authorization_key'].or('')
     }
     buildTypes {
         release {

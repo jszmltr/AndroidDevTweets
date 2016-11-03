@@ -2,7 +2,7 @@ package jackszm.androiddevtweets.api;
 
 import android.content.Context;
 
-import jackszm.androiddevtweets.R;
+import jackszm.androiddevtweets.BuildConfig;
 import jackszm.androiddevtweets.domain.api.ApiToken;
 import jackszm.androiddevtweets.support.Optional;
 import rx.Observable;
@@ -18,11 +18,9 @@ public class AccessTokenService implements AuthenticationService {
 
     public static AccessTokenService newInstance(Context context) {
         AccessTokenStorage accessTokenStorage = AccessTokenStorage.newInstance(context);
-
-        Deserializer deserializer = Deserializer.newInstance();
-        String authorizationKey = context.getResources().getString(R.string.twitter_authorization_key);
         AuthenticationApi authenticationApi = AuthenticationApi.newInstance();
-        return new AccessTokenService(accessTokenStorage, authenticationApi, deserializer, authorizationKey);
+        Deserializer deserializer = Deserializer.newInstance();
+        return new AccessTokenService(accessTokenStorage, authenticationApi, deserializer, BuildConfig.TWITTER_KEY);
     }
 
     AccessTokenService(AccessTokenStorage accessTokenStorage, AuthenticationApi authenticationApi, Deserializer deserializer, String authorizationKey) {
