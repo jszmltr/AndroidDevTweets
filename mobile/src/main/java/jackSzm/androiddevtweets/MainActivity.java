@@ -26,7 +26,7 @@ public class MainActivity extends AppCompatActivity {
         TweetsAdapter adapter = new TweetsAdapter();
         recyclerView.setAdapter(adapter);
 
-        mainActivityPresenter = MainActivityPresenter.newInstance(adapter, getResources());
+        mainActivityPresenter = MainActivityPresenter.newInstance(adapter, this);
     }
 
     @Override

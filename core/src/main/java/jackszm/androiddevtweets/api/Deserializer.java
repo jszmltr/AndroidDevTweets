@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Set;
 
 import jackszm.androiddevtweets.domain.api.ApiRetweetedStatus;
+import jackszm.androiddevtweets.domain.api.ApiToken;
 import jackszm.androiddevtweets.domain.api.ApiTweet;
 import jackszm.androiddevtweets.domain.api.ApiUser;
 
@@ -39,6 +40,14 @@ public class Deserializer {
         }
     }
 
+    public <T> T deserialize(String json, Class<T> klass) {
+        try {
+            return moshi.adapter(klass).fromJson(json);
+        } catch (IOException exception) {
+            throw new DeserializerException(exception);
+        }
+    }
+
     private static class DeserializerException extends RuntimeException {
 
         DeserializerException(Throwable cause) {
@@ -55,6 +64,8 @@ public class Deserializer {
                 return ApiTweet.jsonAdapter(moshi);
             } else if (type.equals(ApiUser.class)) {
                 return ApiUser.jsonAdapter(moshi);
+            } else if (type.equals(ApiToken.class)) {
+                return ApiToken.jsonAdapter(moshi);
             } else {
                 return null;
             }

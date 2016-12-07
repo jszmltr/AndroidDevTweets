@@ -33,22 +33,16 @@ public class MainActivityPresenterShould {
     @Mock
     MainActivityPresenter.TweetsDisplayer tweetsDisplayer;
 
-    MainActivityPresenter mainActivityPresenter;
+    private MainActivityPresenter mainActivityPresenter;
 
     @Before
     public void setUp() throws Exception {
-        mainActivityPresenter = new MainActivityPresenter(
-                tweetsService,
-                tweetsDisplayer,
-                Schedulers.immediate(),
-                Schedulers.immediate(),
-                "accessToken"
-        );
+        mainActivityPresenter = new MainActivityPresenter(tweetsDisplayer, tweetsService, Schedulers.immediate(), Schedulers.immediate());
     }
 
     @Test
     public void displayTweetsReturnedByService_whenStartsPresenting() {
-        when(tweetsService.loadTweets("accessToken")).thenReturn(Observable.just(TWEETS));
+        when(tweetsService.loadTweets()).thenReturn(Observable.just(TWEETS));
 
         mainActivityPresenter.startPresenting();
 

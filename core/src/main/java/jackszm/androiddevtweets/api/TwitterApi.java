@@ -1,8 +1,7 @@
 package jackszm.androiddevtweets.api;
 
-import java.util.concurrent.Callable;
-
 import rx.Observable;
+import rx.functions.Func1;
 
 public class TwitterApi {
 
@@ -11,28 +10,43 @@ public class TwitterApi {
     private static final String URL_GET_ANDROID_DEV_TWEETS = "1.1/statuses/user_timeline.json?count=100&screen_name=androiddevRTbot";
 
     private final RequestExecutor requestExecutor;
+    private final AuthenticationService authenticationService;
 
-    public static TwitterApi newInstance() {
+    public static TwitterApi newInstance(AuthenticationService authenticationService) {
         RequestExecutor requestExecutor = RequestExecutor.newInstance();
-        return new TwitterApi(requestExecutor);
+        return new TwitterApi(authenticationService, requestExecutor);
     }
 
-    TwitterApi(RequestExecutor requestExecutor) {
+    TwitterApi(AuthenticationService authenticationService, RequestExecutor requestExecutor) {
+        this.authenticationService = authenticationService;
         this.requestExecutor = requestExecutor;
     }
 
-    public Observable<String> getAndroidDevTweets(final String accessToken) {
-        return Observable.fromCallable(new Callable<String>() {
+    public Observable<String> getAndroidDevTweets() {
+        return authenticationService.getAccessToken()
+                .map(toRequest())
+                .map(execute());
+    }
+
+    private Func1<String, Request> toRequest() {
+        return new Func1<String, Request>() {
             @Override
-            public String call() {
-                Request request = Request.builder(BASE_URL)
+            public Request call(String accessToken) {
+                return Request.builder(BASE_URL)
                         .path(URL_GET_ANDROID_DEV_TWEETS)
                         .bearerAuthorization(accessToken)
                         .build();
+            }
+        };
+    }
 
+    private Func1<Request, String> execute() {
+        return new Func1<Request, String>() {
+            @Override
+            public String call(Request request) {
                 return requestExecutor.executeRequest(request);
             }
-        });
+        };
     }
 
 }
