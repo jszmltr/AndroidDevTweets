@@ -26,7 +26,7 @@ public class TwitterApi {
     }
 
     public Observable<String> getAndroidDevTweets() {
-        return authenticationService.getAccessToken()
+        return authenticationService.retrieveAccessToken()
                 .map(toRequest())
                 .map(execute())
                 .retryWhen(retryRule.rule());

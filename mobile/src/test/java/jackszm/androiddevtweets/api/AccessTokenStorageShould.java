@@ -41,7 +41,7 @@ public class AccessTokenStorageShould {
         given(preferences.contains(ACCESS_TOKEN_KEY)).willReturn(true);
         given(preferences.getString(eq(ACCESS_TOKEN_KEY), any(String.class))).willReturn(ACCESS_TOKEN);
 
-        Optional<String> accessToken = accessTokenStorage.getCachedAccessToken();
+        Optional<String> accessToken = accessTokenStorage.cachedAccessToken();
 
         assertThat(accessToken.isPresent()).isTrue();
         assertThat(accessToken.get()).isEqualTo(ACCESS_TOKEN);
@@ -51,7 +51,7 @@ public class AccessTokenStorageShould {
     public void returnNoAccessToken_whenAccessTokenIsMissingInPreferences() {
         given(preferences.contains(ACCESS_TOKEN_KEY)).willReturn(false);
 
-        Optional<String> accessToken = accessTokenStorage.getCachedAccessToken();
+        Optional<String> accessToken = accessTokenStorage.cachedAccessToken();
 
         assertThat(accessToken.isAbsent()).isTrue();
     }

@@ -33,16 +33,16 @@ public class AccessTokenService implements AuthenticationService {
     }
 
     @Override
-    public Observable<String> getAccessToken() {
-        return Observable.fromCallable(getCachedAccessToken())
+    public Observable<String> retrieveAccessToken() {
+        return Observable.fromCallable(cachedAccessToken())
                 .flatMap(requestAccessTokenIfNotCached());
     }
 
-    private Callable<Optional<String>> getCachedAccessToken() {
+    private Callable<Optional<String>> cachedAccessToken() {
         return new Callable<Optional<String>>() {
             @Override
             public Optional<String> call() throws Exception {
-                return accessTokenStorage.getCachedAccessToken();
+                return accessTokenStorage.cachedAccessToken();
             }
         };
     }

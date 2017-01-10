@@ -4,7 +4,7 @@ import rx.Observable;
 
 public interface AuthenticationService {
 
-    Observable<String> getAccessToken();
+    Observable<String> retrieveAccessToken();
 
     void invalidateAccessToken();
 }
