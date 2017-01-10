@@ -61,7 +61,7 @@ public class AuthenticationInterceptor {
         authenticationService.invalidateAccessToken();
         return Observable.fromCallable(new Callable<Void>() {
             @Override
-            public Void call() throws Exception {
+            public Void call() {
                 return null;
             }
         });
@@ -76,7 +76,7 @@ public class AuthenticationInterceptor {
     }
 
     @AutoValue
-    static abstract class RetryMetadata {
+    abstract static class RetryMetadata {
 
         static RetryMetadata create(Throwable throwable, Integer retry) {
             return new AutoValue_AuthenticationInterceptor_RetryMetadata(throwable, retry);
