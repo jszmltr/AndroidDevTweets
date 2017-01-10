@@ -5,7 +5,6 @@ import android.content.Context;
 import java.util.List;
 
 import jackszm.androiddevtweets.api.AccessTokenService;
-import jackszm.androiddevtweets.api.AuthenticationService;
 import jackszm.androiddevtweets.domain.Tweet;
 import jackszm.androiddevtweets.tweets.TweetsService;
 import rx.Scheduler;

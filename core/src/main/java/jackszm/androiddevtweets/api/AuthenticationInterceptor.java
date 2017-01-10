@@ -1,5 +1,7 @@
 package jackszm.androiddevtweets.api;
 
+import com.google.auto.value.AutoValue;
+
 import java.util.concurrent.Callable;
 
 import jackszm.androiddevtweets.api.RequestExecutor.HttpException;
@@ -9,18 +11,18 @@ import rx.functions.Func2;
 
 import static java.net.HttpURLConnection.HTTP_UNAUTHORIZED;
 
-public class AuthenticationRetryRule {
+public class AuthenticationInterceptor {
 
     private static final int RETRY_COUNT = 1;
     private static final int RETRY_COUNT_PLUS_FINAL_ERROR_EMISSION = RETRY_COUNT + 1;
 
     private final AuthenticationService authenticationService;
 
-    public AuthenticationRetryRule(AuthenticationService authenticationService) {
+    public AuthenticationInterceptor(AuthenticationService authenticationService) {
         this.authenticationService = authenticationService;
     }
 
-    public Func1<Observable<? extends Throwable>, Observable<?>> rule() {
+    public Func1<Observable<? extends Throwable>, Observable<?>> retryRule() {
         return new Func1<Observable<? extends Throwable>, Observable<?>>() {
             @Override
             public Observable<?> call(Observable<? extends Throwable> attempt) {
@@ -30,26 +32,26 @@ public class AuthenticationRetryRule {
     }
 
     private Observable<Integer> retryCounts() {
-        return Observable.range(1, RETRY_COUNT_PLUS_FINAL_ERROR_EMISSION);
+        return Observable.range(0, RETRY_COUNT_PLUS_FINAL_ERROR_EMISSION);
     }
 
-    private Func2<Throwable, Integer, Throwable> tick() {
-        return new Func2<Throwable, Integer, Throwable>() {
+    private Func2<Throwable, Integer, RetryMetadata> tick() {
+        return new Func2<Throwable, Integer, RetryMetadata>() {
             @Override
-            public Throwable call(Throwable throwable, Integer integer) {
-                return throwable;
+            public RetryMetadata call(Throwable throwable, Integer integer) {
+                return RetryMetadata.create(throwable, integer);
             }
         };
     }
 
-    private Func1<Throwable, Observable<?>> checkForAuthenticationErrors() {
-        return new Func1<Throwable, Observable<?>>() {
+    private Func1<RetryMetadata, Observable<?>> checkForAuthenticationErrors() {
+        return new Func1<RetryMetadata, Observable<?>>() {
             @Override
-            public Observable<?> call(Throwable throwable) {
-                if (isUnauthorized(throwable)) {
+            public Observable<?> call(RetryMetadata retryMetadata) {
+                if (retryMetadata.retry() < RETRY_COUNT && isUnauthorized(retryMetadata.throwable())) {
                     return retry();
                 } else {
-                    return doNotRetry(throwable);
+                    return doNotRetry(retryMetadata.throwable());
                 }
             }
         };
@@ -71,6 +73,18 @@ public class AuthenticationRetryRule {
 
     private boolean isUnauthorized(Throwable throwable) {
         return throwable instanceof HttpException && ((HttpException) throwable).httpCode() == HTTP_UNAUTHORIZED;
+    }
+
+    @AutoValue
+    static abstract class RetryMetadata {
+
+        static RetryMetadata create(Throwable throwable, Integer retry) {
+            return new AutoValue_AuthenticationInterceptor_RetryMetadata(throwable, retry);
+        }
+
+        abstract Throwable throwable();
+
+        abstract Integer retry();
     }
 
 }
