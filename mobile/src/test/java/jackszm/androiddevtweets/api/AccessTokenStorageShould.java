@@ -71,4 +71,19 @@ public class AccessTokenStorageShould {
         inOrder.verifyNoMoreInteractions();
     }
 
+    @Test
+    public void removeAccessTokenFromPreferences() {
+        SharedPreferences.Editor editor = mock(SharedPreferences.Editor.class);
+        given(preferences.edit()).willReturn(editor);
+        given(editor.putString(anyString(), anyString())).willReturn(editor);
+
+        accessTokenStorage.invalidateCachedAccessToken();
+
+        InOrder inOrder = inOrder(preferences, editor);
+        inOrder.verify(preferences).edit();
+        inOrder.verify(editor).remove(ACCESS_TOKEN_KEY);
+        inOrder.verify(editor).apply();
+        inOrder.verifyNoMoreInteractions();
+
+    }
 }

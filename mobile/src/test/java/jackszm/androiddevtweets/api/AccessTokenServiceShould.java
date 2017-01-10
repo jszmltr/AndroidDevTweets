@@ -76,4 +76,11 @@ public class AccessTokenServiceShould {
         return Observable.just("{\"access_token\": \"" + API_ACCESS_TOKEN + "\"}");
     }
 
+    @Test
+    public void invalidateAccessToken() {
+        accessTokenService.invalidateAccessToken();
+
+        verify(accessTokenStorage).invalidateCachedAccessToken();
+    }
+
 }
