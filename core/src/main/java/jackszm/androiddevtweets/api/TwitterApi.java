@@ -11,21 +11,25 @@ public class TwitterApi {
 
     private final RequestExecutor requestExecutor;
     private final AuthenticationService authenticationService;
+    private final AuthenticationRetryRule retryRule;
 
     public static TwitterApi newInstance(AuthenticationService authenticationService) {
         RequestExecutor requestExecutor = RequestExecutor.newInstance();
-        return new TwitterApi(authenticationService, requestExecutor);
+        AuthenticationRetryRule retryRule = new AuthenticationRetryRule(authenticationService);
+        return new TwitterApi(authenticationService, requestExecutor, retryRule);
     }
 
-    TwitterApi(AuthenticationService authenticationService, RequestExecutor requestExecutor) {
+    TwitterApi(AuthenticationService authenticationService, RequestExecutor requestExecutor, AuthenticationRetryRule retryRule) {
         this.authenticationService = authenticationService;
         this.requestExecutor = requestExecutor;
+        this.retryRule = retryRule;
     }
 
     public Observable<String> getAndroidDevTweets() {
         return authenticationService.getAccessToken()
                 .map(toRequest())
-                .map(execute());
+                .map(execute())
+                .retryWhen(retryRule.rule());
     }
 
     private Func1<String, Request> toRequest() {

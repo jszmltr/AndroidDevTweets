@@ -40,4 +40,9 @@ class AccessTokenStorage {
         editor.apply();
     }
 
+    public void invalidateCachedAccessToken() {
+        SharedPreferences.Editor editor = preferences.edit();
+        editor.remove(accessTokenKey);
+        editor.apply();
+    }
 }
