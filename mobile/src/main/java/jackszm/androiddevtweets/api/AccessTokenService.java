@@ -2,6 +2,8 @@ package jackszm.androiddevtweets.api;
 
 import android.content.Context;
 
+import java.util.concurrent.Callable;
+
 import jackszm.androiddevtweets.BuildConfig;
 import jackszm.androiddevtweets.domain.api.ApiToken;
 import jackszm.androiddevtweets.support.Optional;
@@ -31,13 +33,36 @@ public class AccessTokenService implements AuthenticationService {
     }
 
     @Override
-    public Observable<String> getAccessToken() {
-        Optional<String> cachedAccessToken = accessTokenStorage.getCachedAccessToken();
-        if (cachedAccessToken.isPresent()) {
-            return Observable.just(cachedAccessToken.get());
-        } else {
-            return apiAccessToken();
-        }
+    public Observable<String> retrieveAccessToken() {
+        return Observable.fromCallable(cachedAccessToken())
+                .flatMap(requestAccessTokenIfNotCached());
+    }
+
+    private Callable<Optional<String>> cachedAccessToken() {
+        return new Callable<Optional<String>>() {
+            @Override
+            public Optional<String> call() throws Exception {
+                return accessTokenStorage.cachedAccessToken();
+            }
+        };
+    }
+
+    private Func1<Optional<String>, Observable<String>> requestAccessTokenIfNotCached() {
+        return new Func1<Optional<String>, Observable<String>>() {
+            @Override
+            public Observable<String> call(Optional<String> stringOptional) {
+                if (stringOptional.isPresent()) {
+                    return Observable.just(stringOptional.get());
+                } else {
+                    return apiAccessToken();
+                }
+            }
+        };
+    }
+
+    @Override
+    public void invalidateAccessToken() {
+        accessTokenStorage.invalidateCachedAccessToken();
     }
 
     private Observable<String> apiAccessToken() {

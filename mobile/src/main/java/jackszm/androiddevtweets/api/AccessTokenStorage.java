@@ -25,7 +25,7 @@ class AccessTokenStorage {
         this.accessTokenKey = accessTokenKey;
     }
 
-    public Optional<String> getCachedAccessToken() {
+    public Optional<String> cachedAccessToken() {
         if (preferences.contains(accessTokenKey)) {
             String accessToken = preferences.getString(accessTokenKey, UNUSED_ACCESS_TOKEN_DEFAULT);
             return Optional.of(accessToken);
@@ -40,4 +40,9 @@ class AccessTokenStorage {
         editor.apply();
     }
 
+    public void invalidateCachedAccessToken() {
+        SharedPreferences.Editor editor = preferences.edit();
+        editor.remove(accessTokenKey);
+        editor.apply();
+    }
 }

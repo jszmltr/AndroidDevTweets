@@ -43,37 +43,44 @@ public class AccessTokenServiceShould {
 
     @Test
     public void returnCachedAccessToken_whenItIsPresentInTheStorage() {
-        given(accessTokenStorage.getCachedAccessToken()).willReturn(Optional.of(CACHED_ACCESS_TOKEN));
+        given(accessTokenStorage.cachedAccessToken()).willReturn(Optional.of(CACHED_ACCESS_TOKEN));
 
         TestObserver<String> observer = new TestObserver<>();
-        accessTokenService.getAccessToken().subscribe(observer);
+        accessTokenService.retrieveAccessToken().subscribe(observer);
 
         assertThat(observer.getOnNextEvents().get(0)).isEqualTo(CACHED_ACCESS_TOKEN);
     }
 
     @Test
     public void returnAccessTokenFromApi_whenCachedAccessTokenIsAbsent() {
-        given(accessTokenStorage.getCachedAccessToken()).willReturn(Optional.<String>absent());
+        given(accessTokenStorage.cachedAccessToken()).willReturn(Optional.<String>absent());
         given(authenticationApi.getAccessTokenUsing(AUTHORIZATION_KEY)).willReturn(accessTokenResponse());
 
         TestObserver<String> observer = new TestObserver<>();
-        accessTokenService.getAccessToken().subscribe(observer);
+        accessTokenService.retrieveAccessToken().subscribe(observer);
 
         assertThat(observer.getOnNextEvents().get(0)).isEqualTo(API_ACCESS_TOKEN);
     }
 
     @Test
     public void saveApiAccessToken_whenRetrievedFromTheApi() {
-        given(accessTokenStorage.getCachedAccessToken()).willReturn(Optional.<String>absent());
+        given(accessTokenStorage.cachedAccessToken()).willReturn(Optional.<String>absent());
         given(authenticationApi.getAccessTokenUsing(AUTHORIZATION_KEY)).willReturn(accessTokenResponse());
 
-        accessTokenService.getAccessToken().subscribe();
+        accessTokenService.retrieveAccessToken().subscribe();
 
         verify(accessTokenStorage).storeAccessToken(API_ACCESS_TOKEN);
     }
 
     private Observable<String> accessTokenResponse() {
         return Observable.just("{\"access_token\": \"" + API_ACCESS_TOKEN + "\"}");
+    }
+
+    @Test
+    public void invalidateAccessToken() {
+        accessTokenService.invalidateAccessToken();
+
+        verify(accessTokenStorage).invalidateCachedAccessToken();
     }
 
 }
