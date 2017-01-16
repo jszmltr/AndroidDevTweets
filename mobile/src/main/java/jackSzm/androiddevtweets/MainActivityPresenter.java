@@ -1,7 +1,5 @@
 package jackszm.androiddevtweets;
 
-import android.content.Context;
-
 import java.util.List;
 
 import jackszm.androiddevtweets.api.AccessTokenService;
@@ -19,13 +17,13 @@ class MainActivityPresenter {
     private final Scheduler observeOnScheduler;
     private final TweetsService tweetsService;
 
-    static MainActivityPresenter newInstance(TweetsDisplayer tweetsDisplayer, Context context) {
+    static MainActivityPresenter newInstance(MainActivity mainActivity) {
         Scheduler subscribeOnScheduler = Schedulers.io();
         Scheduler observeOnScheduler = AndroidSchedulers.mainThread();
-        AccessTokenService accessTokenService = AccessTokenService.newInstance(context);
+        AccessTokenService accessTokenService = AccessTokenService.newInstance(mainActivity);
         TweetsService tweetsService = TweetsService.newInstance(accessTokenService);
         return new MainActivityPresenter(
-                tweetsDisplayer,
+                mainActivity,
                 tweetsService,
                 subscribeOnScheduler,
                 observeOnScheduler
@@ -46,7 +44,15 @@ class MainActivityPresenter {
 
     void startPresenting() {
         loadTweets();
+        tweetsDisplayer.setRefreshListener(refreshListener);
     }
+
+    private final RefreshListener refreshListener = new RefreshListener() {
+        @Override
+        public void refresh() {
+            loadTweets();
+        }
+    };
 
     private void loadTweets() {
         tweetsService.loadTweets()
@@ -65,7 +71,13 @@ class MainActivityPresenter {
     }
 
     interface TweetsDisplayer {
-
         void displayTweets(List<Tweet> tweets);
+
+        void setRefreshListener(RefreshListener refreshListener);
+    }
+
+    interface RefreshListener {
+        void refresh();
+
     }
 }
