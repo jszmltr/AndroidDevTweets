@@ -10,7 +10,7 @@ import java.util.List;
 
 import jackszm.androiddevtweets.domain.Tweet;
 
-class TweetsAdapter extends RecyclerView.Adapter<TweetsAdapter.TweetViewHolder> implements MainActivityPresenter.TweetsDisplayer {
+class TweetsAdapter extends RecyclerView.Adapter<TweetsAdapter.TweetViewHolder> {
 
     private List<Tweet> tweets = new ArrayList<>();
 
@@ -34,6 +34,10 @@ class TweetsAdapter extends RecyclerView.Adapter<TweetsAdapter.TweetViewHolder> 
     }
 
     @Override
+    public long getItemId(int position) {
+        return tweets.get(position).hashCode();
+    }
+
     public void displayTweets(List<Tweet> tweets) {
         this.tweets = tweets;
         notifyDataSetChanged();
@@ -48,5 +52,6 @@ class TweetsAdapter extends RecyclerView.Adapter<TweetsAdapter.TweetViewHolder> 
         public void bind(Tweet tweet) {
             ((TweetView) itemView).bind(tweet);
         }
+
     }
 }

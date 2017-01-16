@@ -1,15 +1,13 @@
 package jackszm.androiddevtweets;
 
-import android.content.Context;
-
 import java.util.List;
 
 import jackszm.androiddevtweets.api.AccessTokenService;
 import jackszm.androiddevtweets.domain.Tweet;
 import jackszm.androiddevtweets.tweets.TweetsService;
+import rx.Observer;
 import rx.Scheduler;
 import rx.android.schedulers.AndroidSchedulers;
-import rx.functions.Action1;
 import rx.schedulers.Schedulers;
 
 class MainActivityPresenter {
@@ -19,13 +17,13 @@ class MainActivityPresenter {
     private final Scheduler observeOnScheduler;
     private final TweetsService tweetsService;
 
-    static MainActivityPresenter newInstance(TweetsDisplayer tweetsDisplayer, Context context) {
+    static MainActivityPresenter newInstance(MainActivity mainActivity) {
         Scheduler subscribeOnScheduler = Schedulers.io();
         Scheduler observeOnScheduler = AndroidSchedulers.mainThread();
-        AccessTokenService accessTokenService = AccessTokenService.newInstance(context);
+        AccessTokenService accessTokenService = AccessTokenService.newInstance(mainActivity);
         TweetsService tweetsService = TweetsService.newInstance(accessTokenService);
         return new MainActivityPresenter(
-                tweetsDisplayer,
+                mainActivity,
                 tweetsService,
                 subscribeOnScheduler,
                 observeOnScheduler
@@ -46,26 +44,48 @@ class MainActivityPresenter {
 
     void startPresenting() {
         loadTweets();
+        tweetsDisplayer.setRefreshListener(refreshListener);
     }
+
+    private final RefreshListener refreshListener = new RefreshListener() {
+        @Override
+        public void refresh() {
+            loadTweets();
+        }
+    };
 
     private void loadTweets() {
         tweetsService.loadTweets()
                 .subscribeOn(subscribeOnScheduler)
                 .observeOn(observeOnScheduler)
-                .subscribe(displayTweets());
-    }
+                .subscribe(new Observer<List<Tweet>>() {
+                    @Override
+                    public void onNext(List<Tweet> tweets) {
+                        tweetsDisplayer.displayTweets(tweets);
+                    }
 
-    private Action1<List<Tweet>> displayTweets() {
-        return new Action1<List<Tweet>>() {
-            @Override
-            public void call(List<Tweet> tweets) {
-                tweetsDisplayer.displayTweets(tweets);
-            }
-        };
+                    @Override
+                    public void onCompleted() {
+                        // no-op
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        tweetsDisplayer.displayError(e.getMessage());
+                    }
+                });
     }
 
     interface TweetsDisplayer {
-
         void displayTweets(List<Tweet> tweets);
+
+        void setRefreshListener(RefreshListener refreshListener);
+
+        void displayError(String message);
+    }
+
+    interface RefreshListener {
+        void refresh();
+
     }
 }
