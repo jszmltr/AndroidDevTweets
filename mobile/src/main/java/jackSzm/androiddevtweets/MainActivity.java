@@ -5,6 +5,7 @@ import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.widget.Toast;
 
 import com.ataulm.rv.SpacesItemDecoration;
 
@@ -72,6 +73,11 @@ public class MainActivity extends AppCompatActivity implements MainActivityPrese
     @Override
     public void setRefreshListener(final RefreshListener refreshListener) {
         swipeContainer.setOnRefreshListener(createOnRefreshListener(refreshListener));
+    }
+
+    @Override
+    public void displayError(String errorMessage) {
+        Toast.makeText(this, errorMessage, Toast.LENGTH_LONG).show();
     }
 
     private SwipeRefreshLayout.OnRefreshListener createOnRefreshListener(final RefreshListener refreshListener) {
